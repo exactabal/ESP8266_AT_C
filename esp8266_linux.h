@@ -1,0 +1,4 @@
+#ifndef ESP8266_LINUX_H
+#define ESP8266_LINUX_H
+
+#endif // ESP8266_LINUX_H
