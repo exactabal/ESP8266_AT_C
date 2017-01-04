@@ -38,7 +38,7 @@
 
 extern void delayMS(int ms);
 extern void espPrintln(int fd, char *buf, int len);
-extern ssize_t espRead (int __fd, void *__buf, size_t __nbytes);
+extern int espRead (int __fd, void *__buf, size_t __nbytes);
 extern uint32_t getCurrentMS (void);
 
 
