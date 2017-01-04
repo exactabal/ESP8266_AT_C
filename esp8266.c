@@ -49,6 +49,18 @@ char fwVersion[CIRCULAR_BUFFER_SIZE] = {0};
 
 char tmpBuf[CMD_BUFFER_SIZE];
 
+char espWaitForDataBuff[512];
+
+uint8_t circularBufferEndWithBuff[CMD_BUFFER_SIZE];
+
+char espEmptyBufBuff[50];
+
+int numClients=0;
+char clients[MAX_NUMBER_OF_CLIENT][IP_BUFFER_SIZE];
+
+char espGetConnectedAPBuff[200];
+
+
 const char* ESPTAGS[] =
 {
     "\r\nOK\r\n",
@@ -73,7 +85,6 @@ typedef enum{
 
 
 
-uint8_t buf[CMD_BUFFER_SIZE];
 
 bool circularBufferEndWith(const char *tag){
     uint32_t len_to_peek = strlen(tag);
@@ -82,15 +93,15 @@ bool circularBufferEndWith(const char *tag){
     }
 
 
-    circularBufferPeekFromEndMultiple(&circularBuffer, buf, len_to_peek);
-    buf[len_to_peek] ='\0';
+    circularBufferPeekFromEndMultiple(&circularBuffer, circularBufferEndWithBuff, len_to_peek);
+    circularBufferEndWithBuff[len_to_peek] ='\0';
 
     //printf("[%s] <> [%s]\n",tag, buf);
     //for(int i=0;i<len_to_peek;i++){
     //    printf("t %c[%x] <> r %c[%x]\n", tag[i], tag[i], buf[i], buf[i]);
     //}
 
-    return memcmp(tag, buf, len_to_peek) == 0;
+    return memcmp(tag, circularBufferEndWithBuff, len_to_peek) == 0;
 }
 
 
@@ -98,13 +109,11 @@ void espEmptyBuf(int fd)
 {
     int rdlen;
 
-    char buf[50];
-
-    while((rdlen = espRead(fd, buf, sizeof(buf) - 1)) > 0){
-        buf[rdlen] = '\0';
+    while((rdlen = espRead(fd, espEmptyBufBuff, sizeof(espEmptyBufBuff) - 1)) > 0){
+        espEmptyBufBuff[rdlen] = '\0';
         //printf("Discarded = [\n%s]\n", buf);
     }
-    printf("clr\n");
+    //printf("clr\n");
 }
 
 
@@ -170,7 +179,7 @@ int espSendCmd(int fd, const char* cmd, int timeout, ...)
     va_end (args);
 
     espPrintln(fd, tmpBuf, strlen(tmpBuf));
-    printf("espSendCmd>>%s\n",tmpBuf);
+    //printf("espSendCmd>>%s\n",tmpBuf);
 
     int idx = espReadUntil(fd, timeout, NULL, true);
 
@@ -234,7 +243,6 @@ bool espSendCmdGet(int fd, const char* cmd, const char* startTag, const char* en
     outStr[0] = '\0';
 
     if (cmd){
-        printf(">>%s\n", cmd);
 
         // send AT command to ESP
         espPrintln(fd, cmd, strlen(cmd));
@@ -301,7 +309,7 @@ char* espFwVersion(int fd) {
 
 void espReset(int fd)
 {
-    printf("> reset\n");
+    //printf("> reset\n");
 
     //TODO: Uncomment here or better to use an IO to reset ESP8266 module
     //espSendCmd(fd, "AT+RST\r\n", 1000);
@@ -612,11 +620,10 @@ bool espWaitForData(int fd, unsigned int timeout, const char *host, const char *
     }
 
 
-    static char buff[512];
     int len = circularBufferUsedElementsNum(&circularBuffer);
-    circularBufferGetMultiple(&circularBuffer, buff, len);
+    circularBufferGetMultiple(&circularBuffer, espWaitForDataBuff, len);
     //Remove ":"
-    buff[len-1] = '\0';
+    espWaitForDataBuff[len-1] = '\0';
     circularBufferClear(&circularBuffer);
 
 
@@ -624,7 +631,7 @@ bool espWaitForData(int fd, unsigned int timeout, const char *host, const char *
     int data_len=0;
     int ip0, ip1, ip2, ip3, port;
 
-    sscanf(buff,"%d,%d,%d.%d.%d.%d,%d", &conn_id, &data_len, &ip0, &ip1, &ip2, &ip3, &port);
+    sscanf(espWaitForDataBuff,"%d,%d,%d.%d.%d.%d,%d", &conn_id, &data_len, &ip0, &ip1, &ip2, &ip3, &port);
 
     //Read data
     //int bytes_readen = espRead(fd, buff, data_len);
@@ -638,7 +645,7 @@ bool espWaitForData(int fd, unsigned int timeout, const char *host, const char *
 
 		//Read one char
 		if(espRead(fd, &c, sizeof(c)) > 0){
-			*(buff+bytes_readen) = c;
+			*(espWaitForDataBuff+bytes_readen) = c;
 			bytes_readen++;
 		}
 	}
@@ -652,7 +659,7 @@ bool espWaitForData(int fd, unsigned int timeout, const char *host, const char *
     }
 
     if (data){
-        memcpy(data, buff, bytes_readen);
+        memcpy(data, espWaitForDataBuff, bytes_readen);
     }
 
     if (receivedLen){
@@ -689,8 +696,6 @@ bool espSendData(int fd, uint8_t conn_id, const char* dest, uint16_t remotePort,
     return true;
 }
 
-int numClients=0;
-char clients[MAX_NUMBER_OF_CLIENT][IP_BUFFER_SIZE];
 
 int espGetConnectedClients(int fd){
 
@@ -736,13 +741,11 @@ int espGetNumConnectedClients(){
 
 
 bool espGetConnectedAP(int fd, char *ssid, uint32_t len){
-
-    char buff[200];
-    if (espSendCmdGet(fd,"AT+CWJAP_CUR?\r\n", "+CWJAP_CUR:", "\r\n", buff, sizeof(buff)))
+    if (espSendCmdGet(fd,"AT+CWJAP_CUR?\r\n", "+CWJAP_CUR:", "\r\n", espGetConnectedAPBuff, sizeof(espGetConnectedAPBuff)))
     {
-        for( int i=1; i <sizeof(buff); i++ ){
-            if (buff[i]=='\"'){
-                strncpy(ssid, buff+1, i-1);
+        for( int i=1; i <sizeof(espGetConnectedAPBuff); i++ ){
+            if (espGetConnectedAPBuff[i]=='\"'){
+                strncpy(ssid, espGetConnectedAPBuff+1, i-1);
                 ssid[i-1] = '\0';
                 return true;
             }
