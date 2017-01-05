@@ -81,7 +81,7 @@ bool espStartAP(int fd, char* ssid, const char* pwd, uint8_t channel, uint8_t en
 bool espStartUDPServer(int fd, uint8_t conn_id, const char* dest, uint16_t remotePort, uint16_t localPort);
 bool espStartTCPConnection(int fd, uint8_t conn_id, const char* dest, uint16_t remotePort);
 bool espSendTCPData(int fd, uint8_t conn_id, const char *data, int dataLen);
-bool espWaitForData(int fd, unsigned int timeout, const char *host, const char *data, uint32_t *receivedLen);
+bool espWaitForData(int fd, unsigned int timeout, char *host, char *data, uint32_t *receivedLen);
 bool espSendData(int fd, uint8_t conn_id, const char* dest, uint16_t remotePort, const char *data, int dataLen);
 bool espSetIPRangeDHCP(int fd, const char *startIP, const char *endIP);
 bool espSetSoftApIP(int fd, const char *softApIP);

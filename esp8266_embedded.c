@@ -54,7 +54,7 @@ void delayMS(int ms){
 
 
 //#define DEBUG
-void espPrintln(int fd, char *buf, int len){
+void espPrintln(int fd, const char *buf, int len){
     //len+=2;
 #ifdef DEBUG
     printf("espPrintln>>");

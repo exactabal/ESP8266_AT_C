@@ -37,7 +37,7 @@
 
 
 extern void delayMS(int ms);
-extern void espPrintln(int fd, char *buf, int len);
+extern void espPrintln(int fd, const char *buf, int len);
 extern int espRead (int __fd, void *__buf, size_t __nbytes);
 extern uint32_t getCurrentMS (void);
 
@@ -603,7 +603,7 @@ bool espSendTCPData(int fd, uint8_t conn_id, const char *data, int dataLen){
     return true;
 }
 
-bool espWaitForData(int fd, unsigned int timeout, const char *host, const char *data, uint32_t *receivedLen){
+bool espWaitForData(int fd, unsigned int timeout, char *host, char *data, uint32_t *receivedLen){
 
     char espWaitForDataBuff[512];
 
