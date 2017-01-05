@@ -72,6 +72,8 @@ void espEmptyBuf(int fd);
 bool espDriverInit(int fd);
 bool espWifiConnect(int fd, const char* ssid, const char *passphrase);
 bool espDriverMode(int fd, EspMode mode);
+/* Tx power [0,82] each step 0.25 dBm.. not very precise according to documentation */
+bool espTxPower(int fd, int txPower);
 bool espDHCP(int fd, EspMode mode, int enabled);
 void espGetIpAddress(int fd);
 void espGetIPAddressAP(int fd);

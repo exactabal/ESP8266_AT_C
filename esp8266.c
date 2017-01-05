@@ -396,6 +396,25 @@ bool espDriverMode(int fd, EspMode mode){
 }
 
 
+bool espTxPower(int fd, int txPower){
+
+	if ( txPower<0 || 82<txPower){
+		return false;
+
+	}
+    circularBufferInit(&circularBuffer, buffer, CIRCULAR_BUFFER_SIZE);
+
+    if ( espSendCmd(fd, "AT+RFPOWER=%d\r\n", 1000, txPower)  == TAG_OK){
+        printf("Current TxPower is %d\n",txPower);
+        return true;
+    }
+    else{
+        printf("Cannot set TxPower to %d\n",txPower);
+        return false;
+    }
+
+}
+
 //<mode>
 //0 : set ESP8266 soft-AP
 //1 : set ESP8266 station
