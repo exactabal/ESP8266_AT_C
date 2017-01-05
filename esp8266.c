@@ -555,14 +555,14 @@ bool espStartTCPConnection(int fd, uint8_t conn_id, const char* dest, uint16_t r
 }
 
 bool espSendTCPData(int fd, uint8_t conn_id, const char *data, int dataLen){
-    char cmdBuf[50];
+    char cmdBuf[128];
 
-    snprintf(cmdBuf,50, "AT+CIPSEND=%d,%d\r\n", conn_id, dataLen);
+    snprintf(cmdBuf,128, "AT+CIPSEND=%d,%d\r\n", conn_id, dataLen);
 
     espPrintln(fd, cmdBuf, strlen(cmdBuf));
 
 
-    int idx = espReadUntil(fd, 200, ">", false);
+    int idx = espReadUntil(fd, 2000, ">", false);
     if(idx!=NUMESPTAGS)
     {
         printf("Data packet send error (1)\n");
@@ -571,7 +571,7 @@ bool espSendTCPData(int fd, uint8_t conn_id, const char *data, int dataLen){
 
     espPrintln(fd, data, dataLen);
 
-    idx = espReadUntil(fd, 200, NULL, true);
+    idx = espReadUntil(fd, 2000, NULL, true);
     if(idx!=TAG_SENDOK){
         printf("Data packet send error (2)\n");
         return false;
