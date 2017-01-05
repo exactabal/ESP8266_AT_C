@@ -345,6 +345,10 @@ bool espDriverInit(int fd){
 
     espSendCmd(fd, "ATE0\r\n", 1000);
 
+    espSendCmd(fd, "ATE0\r\n", 1000);
+
+    espSendCmd(fd, "ATE0\r\n", 1000);
+
     bool initOK = false;
 
     for(int i=0; i<5; i++)
