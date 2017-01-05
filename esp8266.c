@@ -45,20 +45,10 @@ extern uint32_t getCurrentMS (void);
 static uint8_t buffer[CIRCULAR_BUFFER_SIZE];
 static CircularBuffer circularBuffer;
 
-char fwVersion[CIRCULAR_BUFFER_SIZE] = {0};
-
-char tmpBuf[CMD_BUFFER_SIZE];
-
-char espWaitForDataBuff[512];
-
-uint8_t circularBufferEndWithBuff[CMD_BUFFER_SIZE];
-
-char espEmptyBufBuff[50];
+char fwVersion[128] = {0};
 
 int numClients=0;
 char clients[MAX_NUMBER_OF_CLIENT][IP_BUFFER_SIZE];
-
-char espGetConnectedAPBuff[200];
 
 
 const char* ESPTAGS[] =
@@ -87,6 +77,8 @@ typedef enum{
 
 
 bool circularBufferEndWith(const char *tag){
+    uint8_t circularBufferEndWithBuff[CMD_BUFFER_SIZE];
+
     uint32_t len_to_peek = strlen(tag);
     if (circularBufferUsedElementsNum(&circularBuffer) < len_to_peek){
         return false;
@@ -107,6 +99,9 @@ bool circularBufferEndWith(const char *tag){
 
 void espEmptyBuf(int fd)
 {
+
+    char espEmptyBufBuff[50];
+
     int rdlen;
 
     while((rdlen = espRead(fd, espEmptyBufBuff, sizeof(espEmptyBufBuff) - 1)) > 0){
@@ -173,6 +168,9 @@ int espReadUntil(int fd, unsigned int timeout, const char* tag, bool findTags)
 */
 int espSendCmd(int fd, const char* cmd, int timeout, ...)
 {
+
+    char tmpBuf[CMD_BUFFER_SIZE];
+
     va_list args;
     va_start (args, timeout);
     vsnprintf(tmpBuf, CMD_BUFFER_SIZE, (char*)cmd, args);
@@ -556,8 +554,8 @@ bool espStartTCPConnection(int fd, uint8_t conn_id, const char* dest, uint16_t r
     }
 }
 
-char cmdBuf[50];
 bool espSendTCPData(int fd, uint8_t conn_id, const char *data, int dataLen){
+    char cmdBuf[50];
 
     snprintf(cmdBuf,50, "AT+CIPSEND=%d,%d\r\n", conn_id, dataLen);
 
@@ -583,6 +581,8 @@ bool espSendTCPData(int fd, uint8_t conn_id, const char *data, int dataLen){
 }
 
 bool espWaitForData(int fd, unsigned int timeout, const char *host, const char *data, uint32_t *receivedLen){
+
+    char espWaitForDataBuff[512];
 
     unsigned long start = getCurrentMS();
 
@@ -673,6 +673,7 @@ bool espWaitForData(int fd, unsigned int timeout, const char *host, const char *
 
 bool espSendData(int fd, uint8_t conn_id, const char* dest, uint16_t remotePort, const char *data, int dataLen){
 
+    char cmdBuf[50];
     snprintf(cmdBuf,50, "AT+CIPSEND=%d,%d,\"%s\",%d\r\n", conn_id, dataLen, dest, remotePort);
 
     espPrintln(fd, cmdBuf, strlen(cmdBuf));
@@ -741,6 +742,8 @@ int espGetNumConnectedClients(){
 
 
 bool espGetConnectedAP(int fd, char *ssid, uint32_t len){
+    char espGetConnectedAPBuff[200];
+
     if (espSendCmdGet(fd,"AT+CWJAP_CUR?\r\n", "+CWJAP_CUR:", "\r\n", espGetConnectedAPBuff, sizeof(espGetConnectedAPBuff)))
     {
         for( int i=1; i <sizeof(espGetConnectedAPBuff); i++ ){

@@ -5,7 +5,7 @@
 
 //#define DEBUG_ESP8266
 
-uint32_t getCurrentMS (void){
+uint32_t getCurrentMS (){
     struct timespec spec;
 
     clock_gettime(CLOCK_REALTIME, &spec);
