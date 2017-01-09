@@ -605,7 +605,7 @@ bool espSendTCPData(int fd, uint8_t conn_id, const char *data, int dataLen){
 
 bool espWaitForData(int fd, unsigned int timeout, char *host, char *data, uint32_t *receivedLen){
 
-    char espWaitForDataBuff[512];
+    char espWaitForDataBuff[3000];
 
     unsigned long start = getCurrentMS();
 
@@ -778,4 +778,20 @@ bool espGetConnectedAP(int fd, char *ssid, uint32_t len){
         }
     }
     return false;
+}
+
+
+bool espCloseConnection(int fd, uint8_t conn_id){
+
+    circularBufferInit(&circularBuffer, buffer, CIRCULAR_BUFFER_SIZE);
+
+    if ( espSendCmd(fd, "AT+CIPCLOSE=%d\r\n", 1000, conn_id)  == TAG_OK){
+        printf("Connection id %d closed\n", conn_id);
+        return true;
+    }
+    else{
+        printf("Connection id %d cannot be closed\n", conn_id);
+        return false;
+    }
+
 }

@@ -89,6 +89,7 @@ int espGetConnectedClients(int fd);
 char* espGetConnectedClient(int clientNum);
 int espGetNumConnectedClients();
 bool espGetConnectedAP(int fd, char *data, uint32_t size);
+bool espCloseConnection(int fd, uint8_t conn_id);
 
 #ifdef __cplusplus
 }
