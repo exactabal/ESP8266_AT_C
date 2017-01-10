@@ -561,7 +561,7 @@ bool espStartUDPServer(int fd, uint8_t conn_id, const char* dest, uint16_t remot
 
 
 bool espStartTCPConnection(int fd, uint8_t conn_id, const char* dest, uint16_t remotePort){
-    int ret = espSendCmd(fd,"AT+CIPSTART=%d,\"TCP\",\"%s\",%u\r\n", 1000, conn_id, dest, remotePort);
+    int ret = espSendCmd(fd,"AT+CIPSTART=%d,\"TCP\",\"%s\",%u\r\n", 3000, conn_id, dest, remotePort);
 
     if (ret==TAG_OK) {
         printf("TCP connected at port %u\n", remotePort);
