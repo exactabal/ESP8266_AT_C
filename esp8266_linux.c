@@ -2,8 +2,16 @@
 #include <math.h>
 #include <stdio.h>
 #include <time.h>
+#include <termios.h>
+
 
 //#define DEBUG_ESP8266
+
+
+#ifdef ANDROID
+#define tcdrain(fd) ioctl(fd, TCSBRK, 1)
+#endif
+
 
 uint32_t getCurrentMS (){
     struct timespec spec;
