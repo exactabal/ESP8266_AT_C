@@ -520,7 +520,7 @@ void espGetIPAddressAP(int fd)
 }
 
 
-bool espStartAP(int fd, char* ssid, const char* pwd, uint8_t channel, uint8_t enc, bool hidden)
+bool espStartAP(int fd, const char* ssid, const char* pwd, uint8_t channel, uint8_t enc, bool hidden)
 {
     // TODO
     // Escape character syntax is needed if "SSID" or "password" contains

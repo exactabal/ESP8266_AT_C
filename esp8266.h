@@ -77,7 +77,7 @@ bool espTxPower(int fd, int txPower);
 bool espDHCP(int fd, EspMode mode, int enabled);
 void espGetIpAddress(int fd);
 void espGetIPAddressAP(int fd);
-bool espStartAP(int fd, char* ssid, const char* pwd, uint8_t channel, uint8_t enc, bool hidden);
+bool espStartAP(int fd, const char *ssid, const char* pwd, uint8_t channel, uint8_t enc, bool hidden);
 bool espStartUDPServer(int fd, uint8_t conn_id, const char* dest, uint16_t remotePort, uint16_t localPort);
 bool espStartTCPConnection(int fd, uint8_t conn_id, const char* dest, uint16_t remotePort);
 bool espSendTCPData(int fd, uint8_t conn_id, const char *data, int dataLen);
