@@ -320,7 +320,7 @@ void espReset(int fd)
 
     // set station mode
     espSendCmd(fd,"AT+CWMODE=1\r\n", 1000);
-    delayMS(200);
+    delayMS(10000);
 
     // set multiple connections mode
     espSendCmd(fd,"AT+CIPMUX=1\r\n", 1000);
