@@ -4,8 +4,9 @@
 #include <time.h>
 #include <termios.h>
 
+extern void debugESP8266CommunicationToLog(char *buf, int len, int type);
 
-//#define DEBUG_ESP8266
+#define DEBUG_ESP8266
 
 
 #ifdef ANDROID
@@ -31,7 +32,8 @@
 void espPrintln(int fd, char *buf, int len){
     //len+=2;
 #ifdef DEBUG_ESP8266
-    write(2, buf, len);
+    //write(2, buf, len);
+    debugESP8266CommunicationToLog(buf,len,1);
 #endif
     write(fd, buf, len);
     tcdrain(fd);
@@ -40,7 +42,13 @@ void espPrintln(int fd, char *buf, int len){
 int espRead(int __fd, void *__buf, size_t __nbytes){
    int num = read(__fd, __buf, __nbytes);
 #ifdef DEBUG_ESP8266
-   write(2, __buf, num);
+   //int i=0;
+   //for(i=0;i<num;i++){
+   //    fprintf(stderr,"%c",((char*)__buf)[i]);
+   //}
+   //fprintf(stderr,"\n");
+   //write(2, __buf, num);
+   debugESP8266CommunicationToLog(__buf,__nbytes,0);
 #endif
    return num;
 }
