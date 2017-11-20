@@ -44,6 +44,10 @@ extern "C" {
 
 #define MAX_NUMBER_OF_CLIENT 4
 #define IP_BUFFER_SIZE 16
+    
+    
+/* From AT documentation - "ESP8266 AT Instruction Set" */
+#define MAX_SEND_TCP_DATA_SIZE 2048
 
 //bool debug= false;
 
