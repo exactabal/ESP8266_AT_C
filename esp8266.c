@@ -573,32 +573,52 @@ bool espStartTCPConnection(int fd, uint8_t conn_id, const char* dest, uint16_t r
         return true;
     }
     else{
+        printf("TCP Cannot connect to %s:%u\n", dest, remotePort);
         return false;
     }
 }
 
 bool espSendTCPData(int fd, uint8_t conn_id, const char *data, int dataLen){
-    char cmdBuf[128];
 
-    snprintf(cmdBuf,128, "AT+CIPSEND=%d,%d\r\n", conn_id, dataLen);
+    char *currentByte = data;
+    int bytesLeft = dataLen;
 
-    espPrintln(fd, cmdBuf, strlen(cmdBuf));
+    while (bytesLeft>0) {
+        int bytesToSend;
+
+        if(bytesLeft>MAX_SEND_TCP_DATA_SIZE){
+            bytesToSend = MAX_SEND_TCP_DATA_SIZE;
+        }
+        else{
+            bytesToSend = bytesLeft;
+        }
+
+        char cmdBuf[64];
+
+        snprintf(cmdBuf, 64, "AT+CIPSEND=%d,%d\r\n", conn_id, bytesToSend);
+
+        espPrintln(fd, cmdBuf, strlen(cmdBuf));
 
 
-    int idx = espReadUntil(fd, 2000, ">", false);
-    if(idx!=NUMESPTAGS)
-    {
-        printf("Data packet send error (1)\n");
-        return false;
+        int idx = espReadUntil(fd, 2000, ">", false);
+        if(idx!=NUMESPTAGS)
+        {
+            printf("Data packet send error (1)\n");
+            return false;
+        }
+
+        espPrintln(fd, currentByte, bytesToSend);
+
+        idx = espReadUntil(fd, 2000, NULL, true);
+        if(idx!=TAG_SENDOK){
+            printf("Data packet send error (2)\n");
+            return false;
+        }
+
+        bytesLeft-=bytesToSend;
+        currentByte+=bytesToSend;
     }
 
-    espPrintln(fd, data, dataLen);
-
-    idx = espReadUntil(fd, 2000, NULL, true);
-    if(idx!=TAG_SENDOK){
-        printf("Data packet send error (2)\n");
-        return false;
-    }
 
     return true;
 }
